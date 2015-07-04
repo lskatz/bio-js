@@ -1,0 +1,180 @@
+<html>
+<head>
+  <title>Bio-JS Test</title>
+  <script src='../lib/prototype.js' type='text/javascript'></script>
+
+  <!-- needed for multiple sequence alignment -->
+  <script src='../lib/sms2/scripts/align_pair_linear.js' type='text/javascript'></script>
+  <script src='../lib/sms2/scripts/align_pair_quad.js' type='text/javascript'></script>
+  <script src='../lib/sms2/scripts/pairwise_align_dna.js' type='text/javascript'></script>
+  <script src='../lib/sms2/scripts/pairwise_align_protein.js' type='text/javascript'></script>
+  <!-- END needed for MSAs -->
+
+  <script src='../src/Bio.js' type='text/javascript'></script>
+  
+  <!-- optional libraries -->
+  <script src='../src/fauxconsole.js' type='text/javascript'></script>
+  <!-- END optional libraries -->
+  <script type='text/javascript'>
+  <!--
+  Event.observe(window,"load",function(){
+    // copy the input from the first textarea to the rest
+    // TODO fix the fasta out... why does it do that?
+    var input=new Bio.SeqIO.fasta('input',{html:false,mode:'r'});
+    $$(".input").each(function(el){
+      if(el.identify()=='input') return;
+      output=new Bio.SeqIO.fasta(el,{
+        html:false,
+        mode:'w'
+      });
+      while(seq=input.next_seq()){
+        output.write_seq(seq);
+      }
+    });
+  });
+  function textareaToTextArea(){
+    fastaSequenceInput=$('test1').select('.input')[0];
+    fastaSequenceOutput=$('test1').select('.output')[0];
+    
+    seqin=new Bio.SeqIO.fasta(fastaSequenceInput,{
+      html:false
+    });
+    seqout=new Bio.SeqIO.fasta(fastaSequenceOutput,{
+      mode:"w",
+      html:false
+    });
+    while(seq=seqin.next_seq()){
+      seqout.write_seq(seq);
+    }
+  }
+  function ioStringToTextArea(){
+    IO=new Bio.IO.String();
+    fastaSequenceInput=$('test2').select('.input')[0];
+    fastaSequenceOutput=$('test2').select('.output')[0];
+    
+    // step 1: seqin to IO
+    seqin=new Bio.SeqIO.fasta(fastaSequenceInput,{
+      html:false
+    });
+    // seqout to the IO
+    seqout=new Bio.SeqIO.fasta(IO,{
+      mode:"w",
+      html:false
+    });
+    while(seq=seqin.next_seq()){
+      seqout.write_seq(seq);
+    }
+    
+    // step 2: IO to textarea
+    seqin=new Bio.SeqIO.fasta(IO,{
+      html:false
+    });
+    seqout=new Bio.SeqIO.fasta(fastaSequenceOutput,{
+      mode:"w",
+      html:false
+    });
+    while(seq=seqin.next_seq()){
+      seqout.write_seq(seq);
+    }
+  }
+  function testToolsAlign(){
+    fastaSequenceInput=$('testToolsAlign').select('.input')[0];
+    fastaSequenceOutput=$('testToolsAlign').select('.output')[0];
+    
+    // perform an alignment with default scoring options
+    var aligner=new Bio.Tools.Align(fastaSequenceInput,{
+      out:fastaSequenceOutput
+    });
+    aligner.align();
+    aligner.log("Alignment score: "+aligner.alignmentScore);
+  }
+  //-->
+  </script>
+  <style type='text/css'>
+    textarea.input,textarea.output{
+      height:8em;
+      width:40em;
+    }
+  </style>
+</head>
+<body>
+  <p>This is the demo page, which has clear source code for you to follow. Look at the <a href="doc/index.html">documentation</a> for details.</p>
+  <p>Navigation: 
+    <a href='#test1'>Bio.SeqIO</a>
+    <a href='#test2'>Bio.IO</a>
+    <a href='#toolsAlign'>Bio.Tools.Align</a>
+  </p>
+  <table class="inputOutput">
+    <tr>
+      <th colspan="2">
+        <a name="test1"></a>
+        Input textarea to output textarea
+      </th>
+    </tr>
+    <tr id='test1'>
+      <td>
+        <textarea class='input' id='input'>
+>H.ducreyi_S000002352.seq
+GCAGGCTTAACACATGCAAGTCGAACGGTAGCACGAAGGACTTGCTCCTTGGGTGACGAG
+TGGCGGACGGGTGAGTAATGCTTGGGAATCTGGCTTATGGAGGGGGATAACTACGGGAAA
+CTGTAGCTAATACCGCGTAATATCTTCGGATTAAAGGGTGGGACCTTCGGGCCACCTGCC
+ATAAGATGAGCCCAAGTGG
+>H.paraphrohaemolyticus_S000436705.seq
+ATTGAAGAGTTTGATCANGGCTCAGATTGANCGCTGGCGGCAGGCTTAACANATGCAAGT
+CGAACGGTAACAGGGATTAGCTNGCTNATTGCTGACGAGTGGCGGACGGGTGAGTAATGC
+TTGGGAATCTGGCNTATGGAGGGGGATAACTACGGGAAACTGTAGCTAATACCGCGTAAT
+ATCGGAAGATTAAAGGGTGGGACTTTCGGGCCACCTGCCATAAGATGAGCCCAAGTGG
+>H.parasuis_AB004024.seq
+AGAGTTTGATCATGGCTCAGATTGAACGCTGGCGGCAGGCTTAACACATGCAAGTCGAAC
+GGTAGCAGGAGAAAGCTTGCTTTCTTGCTGACGAGTGGCGGACGGGTGAGTAATGCTTGG
+GAATCTGGCTTATGGAGGGGGATAACTACGGGAAACTGTAGCTAATACCGCGTAGTATCG
+AGAGATGAAAGACTGGGACCGCAAGGCCAGTTGCCATAAGATGAGCCCAAGTGG
+>H.parainfluenzae_S000436710.seq
+ATGNAGAGTTTGATCATGGCTCAGATTGANCGCTGGCGGCAGGCTTNACACATGCAAGTC
+GAACGGTAACATGAAGAAGCTTGCTTCTTTGATGACGAGTGGCGGACGGGTGAGTAATGC
+TTGGGAATNTNGCTTATGGAGGGGGATAACTACGGGAAACTGTAGCTAATACCGCGTATG
+ATCGGGAGATGAAAGTGTGGGACCTTCGGGCCACATGCCATAGGATGAGCCCAAGTGG
+</textarea>
+      </td>
+      <td>
+        <textarea class='output'></textarea>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2" align='center'>
+        <button onclick="javascript:textareaToTextArea();">Read/write</button>
+      </td>
+    </tr>
+    <tr>
+      <th colspan="2">
+        <a name="test2"></a>
+        IO::String to output textarea
+      </th>
+    </tr>
+    <tr id='test2'>
+      <td><textarea class='input'></textarea></td>
+      <td><textarea class='output'></textarea></td>
+    </tr>
+    <tr>
+      <td colspan="2" align='center'>
+        <button onclick="javascript:ioStringToTextArea();">Read/write</button>
+      </td>
+    </tr>
+    <tr>
+      <th colspan="2">
+        <a name="toolsAlign"></a>
+        Bio.Tools.Align (not meant for long sequences!)
+      </th>
+    </tr>
+    <tr id='testToolsAlign'>
+      <td><textarea class='input'></textarea></td>
+      <td><textarea class='output'></textarea></td>
+    </tr>
+    <tr>
+      <td colspan="2" align="center">
+        <button onclick="javascript:testToolsAlign();">Perform alignment</button>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
