@@ -1,14 +1,19 @@
-function SmithWaterman(query,subject,sMatrix=[]){
-  // Make the substitution matrix
-  if(sMatrix.length==0) sMatrix=[
-    [-1,-1,-1,-1,-1], // -ACGT
-    [-1,1,-1,-1,-1],
-    [-1,-1,1,-1,-1],
-    [-1,-1,-1,1,-1],
-    [-1,-1,-1,-1,1]
-  ];
+Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
+
+  initialize:function($super,query,subject,args){
+    $super(args);
+    this.options = Object.extend({
+      sMatrix:[  
+                [-1,-1,-1,-1,-1], // -ACGT (including gap)
+                [-1,1,-1,-1,-1],
+                [-1,-1,1,-1,-1],
+                [-1,-1,-1,1,-1],
+                [-1,-1,-1,-1,1]
+              ]
+    }, this.options);
   
   // transform subj/query to a string of a number with a prefix gap
+  // -:0, A:1, C:2, G:3, T:4
   query="0"+query; 
   subject="0"+subject;
   query=query.replace(/A/gi,1).replace(/C/gi,2).replace(/G/gi,3).replace(/T/gi,4);
@@ -17,7 +22,7 @@ function SmithWaterman(query,subject,sMatrix=[]){
   // Add the object properties
   this.query=query;
   this.subject=subject
-  this.sMatrix=sMatrix;
+  this.sMatrix=this.options.sMatrix;
   
   // Add some blank variables for later
   this.swPath=[];
