@@ -9,6 +9,7 @@ Bio.Seq = Class.create(Bio.Root,{
  * @class An interface for Seq objects.
  * @constructs
  * @extends Bio.Root
+ * @name Bio.Seq
  */
   initialize: function($super,args){
     $super(args);

@@ -8,6 +8,7 @@ Bio.IO.String = Class.create(Bio.IO,{
    * @class
    * @constructs
    * @extends Bio.Root
+   * @name Bio.IO.String
    */
   initialize: function($super,args) {
     $super(args);

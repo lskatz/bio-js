@@ -9,6 +9,7 @@ Bio.IO = Class.create(Bio.Root,{
    * @class
    * @constructs
    * @extends Bio.Root
+   * @name Bio.IO
    */
   initialize: function($super,args) {
     $super(args);

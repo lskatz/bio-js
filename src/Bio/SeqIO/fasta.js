@@ -9,6 +9,7 @@ Bio.SeqIO.fasta = Class.create(Bio.SeqIO,{
    * @class Input/output stream for fasta files
    * @constructs
    * @extends Bio.SeqIO
+   * @name Bio.SeqIO.fasta
    */
   initialize: function($super,el,args){
     $super(el,args);

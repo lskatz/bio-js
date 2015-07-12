@@ -13,6 +13,7 @@ Bio.Alphabet = Class.create(Bio.Root,{
    * @param String|Array args[alphabet] The letters of the alphabet
    * @param String|Array args[subalphas] Standard alphabets to use: "dna" and/or "protein"
    * @param Boolean args[caseSensitive] Whether to make the alphabet case sensitive
+   * @name Bio.Alphabet
    */
   initialize: function($super,args) {
     $super(args);

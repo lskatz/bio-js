@@ -13,6 +13,7 @@ Bio.FeatureIO = Class.create(Bio.Root,{
    * @param Element|String el The element to read/write to
    * @param Hash args A hash with keys of either fileText or element
    * @param String Hash['mode'] A string of either r or w.  Can use + for append mode.  Default: "r"
+   * @name Bio.FeatureIO
    */
   initialize: function($super,el,args) {
     $super(args);

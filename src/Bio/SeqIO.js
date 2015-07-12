@@ -15,6 +15,7 @@ Bio.SeqIO = Class.create(Bio.Root,{
    * @param Hash args A hash with keys of either fileText or element
    * @param String Hash['mode'] A string of either r or w.  Can use + for append mode.  Default: "r"
    * @param String Hash['html']: whether or not to parse HTML or output HTML. Default: true
+   * @name Bio.SeqIO
    */
   initialize: function($super,el,args) {
     $super(args);

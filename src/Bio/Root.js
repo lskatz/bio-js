@@ -2,14 +2,18 @@
  * @lends Bio.Root
  */
 Bio.Root = Class.create(
-/**
- * Bio.Root
- * @class An abstract base class. All BioJS object inherit from it.
- * @param Hash args
- * @constructs
- */
+  /**
+   * Bio.Root
+   * @author Lee Katz <lskatz@gmail.com>
+   * @class An abstract base class. All BioJS object inherit from it.
+   * @param {Array} options An associative array with options
+   * @param {string} options.nl The expected newline character (default: \n)
+   * @param {string} options.ie If the browser is Internet Explorer (options.nl will be set to \r\n if so)
+   * @constructs
+   * @abstract
+   */
 {
-  initialize: function(args) {
+  initialize: function(options) {
     this.e = Prototype.emptyFunction;
     this.ie = Prototype.Browser.IE;
     this.nl="\n";
@@ -19,7 +23,7 @@ Bio.Root = Class.create(
     // default options
     this.options = Object.extend({
       BioRoot:true           // test to see if Root is loaded properly
-    }, args || { });
+    }, options || { });
   },
   /**
    * Throw a message in a BioJS kind of way
@@ -32,6 +36,7 @@ Bio.Root = Class.create(
   },
   /**
    * Log a message or other variable
+   * @param {*} Var Any variable you'd like to log
    */
   log:function(){
     for(var i=0;i<arguments.length;i++){
@@ -68,15 +73,16 @@ Bio.Root = Class.create(
   /**
    * Call this function anywhere as a placeholder for another one.
    * This is the method given in any abstract class before it's replaced.
+   * @throws {string} "This function is not yet implemented"
    */
   notImplemented:function(){
 		this.throw("This function is not yet implemented");
-	},
-	/**
-	 * Called if the object is printed as a string
-	 * @private
-	 */
-	toString:function(){
-		return typeof(this)+"\n"+Object.toJSON(this);
+  },
+  /**
+   * Called if the object is printed as a string
+   * @access private
+   */
+  toString:function(){
+          return typeof(this)+"\n"+Object.toJSON(this);
   }
 });

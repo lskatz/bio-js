@@ -8,6 +8,7 @@ Bio.Feature = Class.create(Bio.Root,{
  * @class An interface for Feature objects.
  * @constructs
  * @extends Bio.Root
+ * @name Bio.Feature
  */
   initialize: function($super,args){
     $super(args);

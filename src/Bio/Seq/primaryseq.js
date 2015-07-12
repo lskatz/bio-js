@@ -1,9 +1,8 @@
-/**
-* @lends Bio.Seq.primaryseq
-*/
 Bio.Seq.primaryseq = Class.create(Bio.Seq,{ 
   /**
-   * Bio.Seq.primaryseq
+   * @lends Bio.Seq.primaryseq
+   * @inheritdoc
+   * @name Bio.Seq.primaryseq
    * @author Lee Katz <lskatz@gmail.com>
    * @class primary class for sequences
    * @constructs
@@ -25,9 +24,11 @@ Bio.Seq.primaryseq = Class.create(Bio.Seq,{
     this.alphabet(this._guessAlphabet());
   },
   /**
-   * Return or update the sequence
-   * @param seq If set, then updates the sequence
+   * @func seq 
+   * @desc Return or update the sequence
+   * @param {string} seq If set, then updates the sequence
    * @todo validate against the alphabet, if it is set
+   * @returns {string} The sequence
    */
   seq:function(seq){
     if(seq){

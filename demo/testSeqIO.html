@@ -11,6 +11,7 @@
   <!-- END needed for MSAs -->
 
   <script src='../src/Bio.js' type='text/javascript'></script>
+  <script src='../src/Bio/Tools/SmithWaterman.js'></script>
   
   <!-- optional libraries -->
   <script src='../src/fauxconsole.js' type='text/javascript'></script>
@@ -31,6 +32,8 @@
         output.write_seq(seq);
       }
     });
+
+    testSW();
   });
   function textareaToTextArea(){
     fastaSequenceInput=$('test1').select('.input')[0];
@@ -87,6 +90,20 @@
     });
     aligner.align();
     aligner.log("Alignment score: "+aligner.alignmentScore);
+  }
+  function testSW(){
+    fastaSequenceInput=$('testToolsSW').select('.input')[0];
+    fastaSequenceOutput=$('testToolsSW').select('.output')[0];
+
+    seqin=new Bio.SeqIO.fasta(fastaSequenceInput,{
+      html:false
+    });
+    var query=seqin.next_seq();
+    var subject=seqin.next_seq();
+    var SW=new Bio.Tools.SmithWaterman(query,subject);
+    SW.run();
+    SW.matchString();
+    console.log(fastaSequenceOutput);
   }
   //-->
   </script>
@@ -173,6 +190,21 @@ ATCGGGAGATGAAAGTGTGGGACCTTCGGGCCACATGCCATAGGATGAGCCCAAGTGG
     <tr>
       <td colspan="2" align="center">
         <button onclick="javascript:testToolsAlign();">Perform alignment</button>
+      </td>
+    </tr>
+    <tr>
+      <th colspan="2">
+        <a name="toolsAlign"></a>
+        Bio.Tools.Align (not meant for long sequences!)
+      </th>
+    </tr>
+    <tr id='testToolsSW'>
+      <td><textarea class='input'></textarea></td>
+      <td><textarea class='output'></textarea></td>
+    </tr>
+    <tr>
+      <td colspan="2" align="center">
+        <button onclick="javascript:testSW();">Perform alignment</button>
       </td>
     </tr>
   </table>

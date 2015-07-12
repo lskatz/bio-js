@@ -1,14 +1,16 @@
 Bio.functions.include_once("Bio::Align");
-/**
- * @lends Bio.AlignIO
- */
+
 Bio.AlignIO = Class.create(Bio.Root,{ 
   /**
-   * Bio.AlignIO
+   * @lends Bio.AlignIO
    * @author Lee Katz <lskatz@gmail.com>
-   * @class Input/output stream for multiple sequence alignments
+   * @class
+   * @classdesc Input/output stream for multiple sequence alignments
    * @constructs
    * @extends Bio.Root
+   * @inheritdoc
+   * @name Bio.AlignIO
+   * @namespace 
    * @todo somehow use $super to get default variables too
    */
   initialize: function($super) {
@@ -29,11 +31,16 @@ Bio.AlignIO = Class.create(Bio.Root,{
     var format=this.options.format;
     return new Bio.AlignIO[format](this.options);
   },
+
   /** 
-   * returns a string representing the format
-   * @param str The sequence string
-   * @TODO do more than just FASTA
-   * @returns String
+   * @function
+   * @func Bio.AlignIO.guessFormat
+   * @desc Returns a string representing the format
+   * @param {string} Sequence The sequence string
+   * @TODO Do more than just FASTA
+   * @returns {string} The name of the format
+   * @inner
+   * @memberof Bio.AlignIO
    */
   guessFormat:function(str){
     var line=str.split("\n");

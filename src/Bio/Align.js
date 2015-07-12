@@ -1,13 +1,15 @@
-/**
-* @lends Bio.Align
-*/
 Bio.Align = Class.create(Bio.Root,{ 
 /**
- * Bio.Align
+ * @lends Bio.Align
+ * @name Bio.Align
+ * @inheritdoc
  * @Author Lee Katz <lskatz@gmail.com>
- * @class An interface for Alignment classes.
+ * @class 
  * @constructs
  * @extends Bio.Root
+ * @desc An interface for Alignment classes.
+ * @param {String} args.file A filename
+ * @param {String} args.fileText The contents of a file
  */
   initialize: function($super){
     this.options = Object.extend({
@@ -16,8 +18,10 @@ Bio.Align = Class.create(Bio.Root,{
     }, arguments[1]|| { });
   },
   /**
-   * Add a sequence to the MSA.  Does not align.
-   * @returns Seq The freshly added Seq
+   * @func addSeq
+   * @desc Add a sequence to the MSA.  Does not align.
+   * @returns {string} Seq The freshly added Seq
+   * @memberof Bio.Align
    */
   addSeq:function(){
     this.notImplemented();

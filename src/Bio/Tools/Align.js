@@ -1,43 +1,35 @@
-/*
-// not necessary: these should be loaded by the user; not the library.  Or, it should be somehow integrated
-["Bio::Tools","sms2::scripts::align_pair_linear",
-  "sms2::scripts::align_pair_quad","sms2::scripts::pairwise_align_dna",
-  "sms2::scripts::pairwise_align_protein"].each(function(m){
-     var included=Bio.functions.include_once(m);
-     if(!included) console.log("Warning: Cannot load "+m+": Cannot perform alignments");
-  }
-);
-*/
-
-/**
- * @lends Bio.Tools.Align
- * Uses the SMS2 project alignment tools that were
- * written by Paul Stothard, University of Alberta, Canada
- *
- * This class performs alignments in linear space, by recursively dividing
- * the alignment. Once subalignments of acceptable size are obtained, they
- * are solved using the quadratic space implementation
- */
+  /**
+   * @lends Bio.Tools.Align
+   */
 Bio.Tools.Align=Class.create(Bio.Tools,{ 
   /**
-   * Bio.Tools
    * @Author Lee Katz <lskatz@gmail.com>
-   * @class A class to align sequences
+   * @class
+   * @classdesc Performs global alignment
    * @constructs
    * @extends Bio.Tools
+   * @implements {Bio.Tools}
+   * @name Bio.Tools.Align
    * @TODO put warnings on large sequences
    * @TODO allow for more than 2 sequences
    * @TODO different options for protein vs dna
+   * @param {Array} options An associative array with options
+   * @param {array}   options.seq Seqs An array of Seq objects
+   * @param {integer} [options.mismatchScore=1]
+   * @param {integer} [options.matchScore=2]
+   * @param {integer} [options.gapPenalty=2]
+   * @param {integer} [options.beginGapPenalty=0]
+   * @param {integer} [options.endGapPenalty=0]
    */
-  initialize:function($super,el,args){
-    $super(args);
+  initialize:function($super,options){
+    $super(options);
     this.options = Object.extend({
       mismatchScore:1,
       matchScore:2,
       gapPenalty:2,
       beginGapPenalty:0,
       endGapPenalty:0,
-      html:false        // containing element has HTML?
+      seq: options.seq || this.throw("ERROR: need options.seq")
     }, this.options);
     
     el=$(el) || this.throw("Could not get the element "+el);
