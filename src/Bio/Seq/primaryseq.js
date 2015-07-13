@@ -1,25 +1,22 @@
+/**
+  * @lends Bio.Seq.primaryseq
+  * @implements Bio.Seq
+  * @inheritdoc
+  */
 Bio.Seq.primaryseq = Class.create(Bio.Seq,{ 
   /**
-   * @lends Bio.Seq.primaryseq
-   * @inheritdoc
    * @name Bio.Seq.primaryseq
    * @author Lee Katz <lskatz@gmail.com>
    * @class primary class for sequences
    * @constructs
    * @extends Bio.Seq
    * @todo add an alphabet parameter
+   * @inheritdoc
    */
-  initialize: function($super,args){
-    $super(args);
+  initialize: function($super,options){
     
-    // mandatory arguments
-    ['seq','id'].each(function(arg){
-      if(!this.options[arg]){
-        this.throw("Argument "+arg+" is mandatory for this class");
-      }
-    }.bind(this));
-    // remove any whitespace from the sequence
-    this.options.seq=this.options.seq.replace(/\s+/,"");
+    // Set some properties if they are special for Bio.Seq.primaryseq
+    this.seq(this.options.seq);
     
     this.alphabet(this._guessAlphabet());
   },
@@ -32,6 +29,8 @@ Bio.Seq.primaryseq = Class.create(Bio.Seq,{
    */
   seq:function(seq){
     if(seq){
+      // remove any whitespace from the sequence
+      seq=seq.replace(/\s+/g,"");
       this.options.seq=seq;
     }
     return this.options.seq;

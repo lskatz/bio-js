@@ -11,8 +11,8 @@ Bio.SeqIO.fasta = Class.create(Bio.SeqIO,{
    * @extends Bio.SeqIO
    * @name Bio.SeqIO.fasta
    */
-  initialize: function($super,el,args){
-    $super(el,args);
+  initialize: function($super,el,options){
+    $super(el,options);
     
     // if the mode is write, then set the value back to ""
     if(this.options.mode.match(/w/) && !this.options.mode.match(/\+/)){

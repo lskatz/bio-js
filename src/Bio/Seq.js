@@ -1,6 +1,8 @@
 Bio.functions.include_once("Bio::Alphabet");
 /**
 * @lends Bio.Seq
+* @interface
+* @inheritdoc
 */
 Bio.Seq = Class.create(Bio.Root,{ 
 /**
@@ -10,17 +12,21 @@ Bio.Seq = Class.create(Bio.Root,{
  * @constructs
  * @extends Bio.Root
  * @name Bio.Seq
+ * @inheritdoc
+ * @param {string} options.seq The dna or protein sequence. Whitespace is stripped.
+ * @param {string} options.id       The sequence identifier
+ * @param {string} options.desc     The sequence description
+ * @param {Bio.Alphabet} options.alphabet An alphabet object
  */
-  initialize: function($super,args){
-    $super(args);
-    
-    // default variables
-    this.options = Object.extend({
-      id:"",
-      seq:"",
-      desc:"",
-      alphabet:'dna' // TODO use a DNA class instead of a string
-    }, this.options|| { });
+  initialize: function($super,options){
+
+    this.options(options);
+
+    // Additional options
+    options.id || this.throw("Argument options.id is mandatory for this class");
+    options.seq || this.throw("Argument options.seq is mandatory for this class");
+    this.options.desc=options.desc || "";
+    this.options.alphabet=options.alphabet || "";
   },
   /**
    * The sequence

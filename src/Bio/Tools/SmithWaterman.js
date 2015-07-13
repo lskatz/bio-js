@@ -15,22 +15,22 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
    * @param {Object} subject The sequence of the subject
    * @param {Array} options An associative array with options
    * @param {Array[]} [options.sMatrix=[[-1,-1,...],[-1,1,...]] A substitution score matrix where each position in order is: gap, A, C, G, T
-   * @param {string} options.query A fasta-formatted sequence
-   * @param {string} options.subject A fasta-formatted sequence
+   * @param {Bio.Seq} options.query A fasta-formatted sequence
+   * @param {Bio.Seq} options.subject A fasta-formatted sequence
    */
   initialize:function($super,options){
     $super(options);
-    this.options = Object.extend({
-      sMatrix: options.sMatrix || [  
+    this.options.sMatrix = options.sMatrix || [
                 [-1,-1,-1,-1,-1], // -ACGT (including gap)
                 [-1,1,-1,-1,-1],
                 [-1,-1,1,-1,-1],
                 [-1,-1,-1,1,-1],
                 [-1,-1,-1,-1,1]
-              ],
-      query: options.query || this.throw("ERROR: need options.query"),
-      subject: options.subject || this.throw("ERROR: need options.subject"),
-    }, this.options);
+              ];
+    this.options.query = options.query || this.throw("ERROR: need options.query");
+    this.options.subject = options.subject || this.throw("ERROR: need options.subject");
+
+    this.notImplemented();
   
     // transform subj/query to a string of a number with a prefix gap
     // -:0, A:1, C:2, G:3, T:4

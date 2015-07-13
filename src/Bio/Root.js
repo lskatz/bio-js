@@ -7,8 +7,6 @@ Bio.Root = Class.create(
    * @author Lee Katz <lskatz@gmail.com>
    * @class An abstract base class. All BioJS object inherit from it.
    * @param {Array} options An associative array with options
-   * @param {string} options.nl The expected newline character (default: \n)
-   * @param {string} options.ie If the browser is Internet Explorer (options.nl will be set to \r\n if so)
    * @constructs
    * @abstract
    */
@@ -20,10 +18,20 @@ Bio.Root = Class.create(
     if(this.ie){
       this.nl="\r\n";
     }
-    // default options
-    this.options = Object.extend({
-      BioRoot:true           // test to see if Root is loaded properly
-    }, options || { });
+    this.options=this.options || $A();
+
+    this.getopts(options);
+  },
+  /**
+   * @function getopts Sets parameters from the options associative array
+   */
+  getopts: function(options){
+    this.options.BioRoot=true;
+
+    console.log(this.options);
+    $H(options).each(function(pair){
+      this.options[pair.key]=pair.value;
+    }).bind(this);
   },
   /**
    * Throw a message in a BioJS kind of way

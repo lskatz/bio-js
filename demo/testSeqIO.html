@@ -39,9 +39,10 @@
     fastaSequenceInput=$('test1').select('.input')[0];
     fastaSequenceOutput=$('test1').select('.output')[0];
     
-    seqin=new Bio.SeqIO.fasta(fastaSequenceInput,{
-      html:false
-    });
+    seqin=new Bio.SeqIO.fasta(fastaSequenceInput.innerHTML);
+
+    return;
+
     seqout=new Bio.SeqIO.fasta(fastaSequenceOutput,{
       mode:"w",
       html:false
