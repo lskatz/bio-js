@@ -30,14 +30,11 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
     this.options.query = options.query || this.throw("ERROR: need options.query");
     this.options.subject = options.subject || this.throw("ERROR: need options.subject");
 
-    console.log(this.options.query);
 
-    this.notImplemented();
-  
     // transform subj/query to a string of a number with a prefix gap
     // -:0, A:1, C:2, G:3, T:4
-    var query=this.options.query + "0"+query.seq(); 
-    var subject=this.options.subject + "0"+subject.seq();
+    var query="0"+this.options.query.seq(); 
+    var subject="0"+this.options.subject.seq();
     query=query.replace(/A/gi,1).replace(/C/gi,2).replace(/G/gi,3).replace(/T/gi,4);
     subject=subject.replace(/A/gi,1).replace(/C/gi,2).replace(/G/gi,3).replace(/T/gi,4);
     

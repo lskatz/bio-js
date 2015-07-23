@@ -16,6 +16,7 @@ Bio.Seq.Primaryseq = Class.create(Bio.Seq,{
   initialize: function($super,options){
     
     // Set some properties if they are special for Bio.Seq.Primaryseq
+    $super(options);
     this.seq(this.options.seq);
     
     this.alphabet(this._guessAlphabet());

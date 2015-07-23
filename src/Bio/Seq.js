@@ -20,7 +20,7 @@ Bio.Seq = Class.create(Bio.Root,{
  */
   initialize: function($super,options){
 
-    this.options(options);
+    $super(options);
 
     // Additional options
     options.id || this.throw("Argument options.id is mandatory for this class");

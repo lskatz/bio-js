@@ -90,7 +90,7 @@ Bio.Root = Class.create({
    * @throws {string} "This function is not yet implemented"
    */
   notImplemented:function(){
-		this.throw("This function is not yet implemented");
+    this.throw("This function is not yet implemented");
   },
   /**
    * Called if the object is printed as a string

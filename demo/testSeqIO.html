@@ -25,7 +25,7 @@
     var input=new Bio.SeqIO.Fasta('input',{html:false,mode:'r'});
     $$(".input").each(function(el){
       if(el.identify()=='input') return;
-      output=new Bio.SeqIO.fasta(el,{
+      output=new Bio.SeqIO.Fasta(el,{
         html:false,
         mode:'w'
       });
@@ -40,11 +40,11 @@
     fastaSequenceInput=$('test1').select('.input')[0];
     fastaSequenceOutput=$('test1').select('.output')[0];
     
-    seqin=new Bio.SeqIO.fasta(fastaSequenceInput.innerHTML);
+    seqin=new Bio.SeqIO.Fasta(fastaSequenceInput.innerHTML);
 
     return;
 
-    seqout=new Bio.SeqIO.fasta(fastaSequenceOutput,{
+    seqout=new Bio.SeqIO.Fasta(fastaSequenceOutput,{
       mode:"w",
       html:false
     });
@@ -58,11 +58,11 @@
     fastaSequenceOutput=$('test2').select('.output')[0];
     
     // step 1: seqin to IO
-    seqin=new Bio.SeqIO.fasta(fastaSequenceInput,{
+    seqin=new Bio.SeqIO.Fasta(fastaSequenceInput,{
       html:false
     });
     // seqout to the IO
-    seqout=new Bio.SeqIO.fasta(IO,{
+    seqout=new Bio.SeqIO.Fasta(IO,{
       mode:"w",
       html:false
     });
@@ -71,10 +71,10 @@
     }
     
     // step 2: IO to textarea
-    seqin=new Bio.SeqIO.fasta(IO,{
+    seqin=new Bio.SeqIO.Fasta(IO,{
       html:false
     });
-    seqout=new Bio.SeqIO.fasta(fastaSequenceOutput,{
+    seqout=new Bio.SeqIO.Fasta(fastaSequenceOutput,{
       mode:"w",
       html:false
     });
@@ -97,15 +97,15 @@
     fastaSequenceInput=$('testToolsSW').select('.input')[0];
     fastaSequenceOutput=$('testToolsSW').select('.output')[0];
 
-    seqin=new Bio.SeqIO.fasta(fastaSequenceInput,{
+    seqin=new Bio.SeqIO.Fasta(fastaSequenceInput,{
       html:false
     });
     var query=seqin.next_seq();
     var subject=seqin.next_seq();
-    var SW=new Bio.Tools.SmithWaterman(query,subject);
-    SW.run();
+    var SW=new Bio.Tools.SmithWaterman({query:query,subject:subject});
+    [score,matrix]=SW.run();
     SW.matchString();
-    console.log(fastaSequenceOutput);
+    console.log(aln);
   }
   //-->
   </script>
