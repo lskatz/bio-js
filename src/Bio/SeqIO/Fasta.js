@@ -103,7 +103,7 @@ Bio.SeqIO.Fasta = Class.create(Bio.SeqIO,{
     
     var sequence=line.join("").replace(/\s+/g,"");
     
-    var seq=new Bio.Seq.primaryseq({id:id,desc:desc,seq:sequence});
+    var seq=new Bio.Seq.Primaryseq({id:id,desc:desc,seq:sequence});
     return seq;
   },
 	toString:function(){
