@@ -1,11 +1,11 @@
 /**
-  * @lends Bio.Seq.primaryseq
+  * @lends Bio.Seq.Primaryseq
   * @implements Bio.Seq
   * @inheritdoc
   */
-Bio.Seq.primaryseq = Class.create(Bio.Seq,{ 
+Bio.Seq.Primaryseq = Class.create(Bio.Seq,{ 
   /**
-   * @name Bio.Seq.primaryseq
+   * @name Bio.Seq.Primaryseq
    * @author Lee Katz <lskatz@gmail.com>
    * @class primary class for sequences
    * @constructs
@@ -15,7 +15,7 @@ Bio.Seq.primaryseq = Class.create(Bio.Seq,{
    */
   initialize: function($super,options){
     
-    // Set some properties if they are special for Bio.Seq.primaryseq
+    // Set some properties if they are special for Bio.Seq.Primaryseq
     this.seq(this.options.seq);
     
     this.alphabet(this._guessAlphabet());
