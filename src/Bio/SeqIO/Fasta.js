@@ -1,15 +1,15 @@
 /**
- * @lends Bio.SeqIO.fasta
+ * @lends Bio.SeqIO.Fasta
  */
 Bio.functions.include_once("Bio::Seq::primaryseq");
-Bio.SeqIO.fasta = Class.create(Bio.SeqIO,{
+Bio.SeqIO.Fasta = Class.create(Bio.SeqIO,{
   /**
-   * Bio.SeqIO.fasta
+   * Bio.SeqIO.Fasta
    * @author Lee Katz <lskatz@gmail.com>
    * @class Input/output stream for fasta files
    * @constructs
    * @extends Bio.SeqIO
-   * @name Bio.SeqIO.fasta
+   * @name Bio.SeqIO.Fasta
    */
   initialize: function($super,el,options){
     $super(el,options);
