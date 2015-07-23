@@ -7,16 +7,16 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
    * @author Lee Katz <lskatz@gmail.com>
    * @class
    * @classdesc Performs alignment using the Smith-Waterman algorithm
+   * @inheritdoc
    * @constructs
-   * @extends Bio.Tools
    * @implements {Bio.Tools}
    * @name Bio.Tools.SmithWaterman
    * @param {Object} query The sequence of the query
    * @param {Object} subject The sequence of the subject
    * @param {Array} options An associative array with options
-   * @param {Array[]} [options.sMatrix=[[-1,-1,...],[-1,1,...]] A substitution score matrix where each position in order is: gap, A, C, G, T
-   * @param {Bio.Seq} options.query A fasta-formatted sequence
-   * @param {Bio.Seq} options.subject A fasta-formatted sequence
+   * @param {Array[]} [options.sMatrix=[[-1,-1,...],[-1,1,...],...] ] A substitution score matrix where each position in order is: gap, A, C, G, T
+   * @param {Bio.Seq} options.query A query sequence object
+   * @param {Bio.Seq} options.subject A subject sequence object
    */
   initialize:function($super,options){
     $super(options);
@@ -29,6 +29,8 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
               ];
     this.options.query = options.query || this.throw("ERROR: need options.query");
     this.options.subject = options.subject || this.throw("ERROR: need options.subject");
+
+    console.log(this.options.query);
 
     this.notImplemented();
   

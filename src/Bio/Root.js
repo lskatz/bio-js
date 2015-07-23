@@ -1,16 +1,17 @@
 /**
  * @lends Bio.Root
  */
-Bio.Root = Class.create(
+Bio.Root = Class.create({
   /**
-   * Bio.Root
+   * An abstract base class. All BioJS object inherit from it.
    * @author Lee Katz <lskatz@gmail.com>
-   * @class An abstract base class. All BioJS object inherit from it.
+   * @class
    * @param {Array} options An associative array with options
+   * @param {*} options.something Child variable function, to be determined by the child
    * @constructs
    * @abstract
+   * @name Bio.Root
    */
-{
   initialize: function(options) {
     this.e = Prototype.emptyFunction;
     this.ie = Prototype.Browser.IE;
@@ -27,11 +28,14 @@ Bio.Root = Class.create(
    */
   getopts: function(options){
     this.options.BioRoot=true;
+    var functionOptions=this.options;
 
-    console.log(this.options);
-    $H(options).each(function(pair){
-      this.options[pair.key]=pair.value;
-    }).bind(this);
+    options=$H(options);
+    console.log(options);
+    options.each(function(pair){
+      functionOptions[pair.key]=pair.value;
+    });
+    console.log(functionOptions);
   },
   /**
    * Throw a message in a BioJS kind of way
