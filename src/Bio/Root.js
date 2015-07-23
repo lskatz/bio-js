@@ -19,8 +19,10 @@ Bio.Root = Class.create({
     if(this.ie){
       this.nl="\r\n";
     }
-    this.options=this.options || $A();
 
+    // Initialize the options to an empty hash
+    this.options=this.options || $H();
+    // Add onto the options if any others are given
     this.getopts(options);
   },
   /**
@@ -31,11 +33,10 @@ Bio.Root = Class.create({
     var functionOptions=this.options;
 
     options=$H(options);
-    console.log(options);
     options.each(function(pair){
       functionOptions[pair.key]=pair.value;
     });
-    console.log(functionOptions);
+    this.options=functionOptions;
   },
   /**
    * Throw a message in a BioJS kind of way
