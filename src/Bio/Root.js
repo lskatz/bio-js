@@ -45,7 +45,8 @@ Bio.Root = Class.create({
    * @function
    */
   throw:function(msg){
-    throw(msg);
+    var err=new Error(msg);
+    return err.stack;
   },
   /**
    * Log a message or other variable
