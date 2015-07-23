@@ -1,7 +1,7 @@
 /**
  * @lends Bio.SeqIO.Fasta
  */
-Bio.functions.include_once("Bio::Seq::primaryseq");
+Bio.functions.include_once("Bio::Seq::Primaryseq");
 Bio.SeqIO.Fasta = Class.create(Bio.SeqIO,{
   /**
    * Bio.SeqIO.Fasta

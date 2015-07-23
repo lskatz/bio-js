@@ -1,5 +1,5 @@
 Bio.functions.include_once("Bio::Seq");
-Bio.functions.include_once("Bio::SeqIO::fasta");
+Bio.functions.include_once("Bio::SeqIO::Fasta");
 Bio.functions.include_once("Bio::Alphabet");
 /**
  * @lends Bio.SeqIO
