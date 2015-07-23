@@ -34,7 +34,7 @@ Bio.Tools.Align=Class.create(Bio.Tools,{
     
     el=$(el) || this.throw("Could not get the element "+el);
     
-    seqin=new Bio.SeqIO.fasta(fastaSequenceInput,{
+    seqin=new Bio.SeqIO.Fasta(fastaSequenceInput,{
       mode:"r",
       html:this.options.html
     });
@@ -85,7 +85,7 @@ Bio.Tools.Align=Class.create(Bio.Tools,{
     
     // if there is an output, write the sequences to an output
     if(this.options.out){
-      var out=new Bio.SeqIO.fasta(this.options.out,{
+      var out=new Bio.SeqIO.Fasta(this.options.out,{
         html:this.options.html,
         mode:"w"
       });

@@ -22,7 +22,7 @@
   Event.observe(window,"load",function(){
     // copy the input from the first textarea to the rest
     // TODO fix the fasta out... why does it do that?
-    var input=new Bio.SeqIO.fasta('input',{html:false,mode:'r'});
+    var input=new Bio.SeqIO.Fasta('input',{html:false,mode:'r'});
     $$(".input").each(function(el){
       if(el.identify()=='input') return;
       output=new Bio.SeqIO.fasta(el,{
