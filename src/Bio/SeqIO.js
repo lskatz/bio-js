@@ -17,18 +17,8 @@ Bio.SeqIO = Class.create(Bio.Root,{
    * @param String Hash['html']: whether or not to parse HTML or output HTML. Default: true
    * @name Bio.SeqIO
    */
-  initialize: function($super,el,args) {
-    $super(args);
-    
-    // TODO if the first argument isn't an existing element,
-    // create an invisible element and update it with the contents of the first argument
-    
-    // the element is either an IO element or an element or the id of an element
-    this.element=el.el||$(el)||this.throw("No element specified");
-    this.options = Object.extend({
-      mode:'r',  // read/write mode
-      html: true // whether to parse HTML in the input or output with HTML
-    }, this.options|| { });
+  initialize: function($super,options) {
+    $super(options);
   },
   /** 
    * returns a string representing the format
@@ -49,20 +39,20 @@ Bio.SeqIO = Class.create(Bio.Root,{
         return 'fasta';
       }
     }
-    this.throw("Could not determine the type of sequence file");
+    return this.throw("Could not determine the type of sequence file");
   },
   /**
    * Gets the next sequence and returns a Bio::Seq compatible object
    * @returns Bio.Seq
    */
   next_seq:function(){
-		this.notImplemented();
-	},
-	/**
-	 * writes out the next sequence
-	 */
-	write_seq:function(){
-	  this.notImplemented();
-	}
+    this.notImplemented();
+  },
+  /**
+   * writes out the next sequence
+   */
+  write_seq:function(){
+    this.notImplemented();
+  }
 });
 

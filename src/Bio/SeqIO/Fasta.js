@@ -11,19 +11,20 @@ Bio.SeqIO.Fasta = Class.create(Bio.SeqIO,{
    * @extends Bio.SeqIO
    * @name Bio.SeqIO.Fasta
    */
-  initialize: function($super,el,options){
-    $super(el,options);
-    
-    // if the mode is write, then set the value back to ""
-    if(this.options.mode.match(/w/) && !this.options.mode.match(/\+/)){
-      this.element.update();
-    }
-    //    TODO if the mode is append, then do not set the value back to ""
-    
-    var el=this.element;
-    var value=el.innerHTML;
-    if(el.value) value=el.value;
-    if(value) this._parseFile(value);
+  initialize: function($super,options){
+    $super(options);
+
+    // some properties to get us going
+    this.seq=[];
+    this.sequenceString="";
+
+    if("el" in options){
+      this.sequenceString=$(el).innerHTML;
+    } else if("string" in options){
+      this.sequenceString=options.string;
+    } 
+    if(this.sequenceString) this._parseFile(this.sequenceString);
+
   },
   /**
    * Gives a Bio.Seq object or false if there are no more sequences
@@ -71,12 +72,9 @@ Bio.SeqIO.Fasta = Class.create(Bio.SeqIO,{
    * @private
    */
   _parseFile:function(str){
-    if(this.options.html){
-      str=str.replace(/<[^>]+?>/g,""); // strip tags
-      str=str.replace(/&gt;/g,">");
-    }
     var seqArray=[];
-    var seqEntry=str.split(/>/);
+    //var seqEntry=str.split(/>/);
+    var seqEntry=str.split(this.nl+">");
     seqEntry=seqEntry.without("");
     for(var i=0;i<seqEntry.length;i++){
       seqEntry[i]=seqEntry[i].replace(/^\s+|\s+$/g,""); // trim
@@ -106,11 +104,11 @@ Bio.SeqIO.Fasta = Class.create(Bio.SeqIO,{
     var seq=new Bio.Seq.Primaryseq({id:id,desc:desc,seq:sequence});
     return seq;
   },
-	toString:function(){
-	  var returnStr="";
-	  for(i=0;i<this.seq.length;i++){
-	    returnStr+=this.seq[i]+this.nl;
-	  }
-	  return returnStr;
-	}
+  toString:function(){
+    var returnStr="";
+    for(i=0;i<this.seq.length;i++){
+      returnStr+=this.seq[i]+this.nl;
+    }
+    return returnStr;
+  }
 });

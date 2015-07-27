@@ -79,6 +79,7 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
     var subjectString=this.swPath[0].subject;
     var matchLength=this.swPath.length;
     var numIdentical=0; // how many identity sites there are 
+    if(queryString==subjectString) numIdentical++;
     for(var k=1;k<matchLength;k++){
       var swPathCell=this.swPath[k];
       var i=this.swPath[k].i;
@@ -129,15 +130,18 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
     if(this.formattedMatch != ""){
       return this.formattedMatch;
     }
+    this.matchString(); // Run this to set some variables
+
+    var formattedMatch="";
+    formattedMatch+=this.queryObj.id()+" against "+this.subjectObj.id()+"\n";
+    formattedMatch+="Identities: "+this.positives+"/"+this.alignmentLength+"("+Math.round(this.percentIdentity * 100)/100+"%)\n";
 
     var matchArr=this.matchString().match(/.{1,60}/g);
     var queryArr=this.queryGapped.match(/.{1,60}/g);
     var subjectArr=this.subjectGapped.match(/.{1,60}/g);
-    var formattedMatch="\n";
-    
-    var formattedMatch="";
+
     for(var i=0;i<matchArr.length;i++){
-      formattedMatch+=queryArr[i]+"\n"+matchArr[i]+"\n"+subjectArr[i]+"\n\n";
+      formattedMatch+=queryArr[i].match(/.{1,10}/g).join(" ")+"\n"+matchArr[i].match(/.{1,10}/g).join(" ")+"\n"+subjectArr[i].match(/.{1,10}/g).join(" ")+"\n\n";
     }
     
     this.formattedMatch=formattedMatch;
@@ -156,12 +160,12 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
     subject=this.subject
     
     // initialize the smith-waterman matrix to 0
-    var matrix=new Array;
+    var matrix=[];
     for(var i=0;i<query.length;i++){
-      matrix[i]=new Array;
-      for(var j=0;j<subject.length;j++){
-        matrix[i][j]=0;
-      }
+      matrix[i]=[0];
+      //for(var j=0;j<subject.length;j++){
+      //  matrix[i][j]=0;
+      //}
     }
     
     // Calculate scores in the matrix according to gaps and matches.
@@ -243,7 +247,7 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
     this.alignmentLength=swPath.length;
     this.score=totalScore;
     this.matrix=matrix;
-    
+
     return [totalScore,swPath];
   },
   _intToNt:function(number){

@@ -18,6 +18,8 @@ Bio.Seq.Primaryseq = Class.create(Bio.Seq,{
     // Set some properties if they are special for Bio.Seq.Primaryseq
     $super(options);
     this.seq(this.options.seq);
+    this.id(this.options.id);
+    this.length=this.options.seq.length;
     
     this.alphabet(this._guessAlphabet());
   },
@@ -41,7 +43,7 @@ Bio.Seq.Primaryseq = Class.create(Bio.Seq,{
    * @param id If set, then updates the id
    */
   id:function(id){
-    if(id){
+    if(typeof id !== 'undefined'){
       this.options.id=id;
     }
     return this.options.id;
