@@ -37,17 +37,6 @@
     var subject=seqin.next_seq();
     var SW=new Bio.Tools.SmithWaterman({query:query,subject:subject});
     [score,matrix]=SW.run();
-    var matchStr=SW.matchString();
-    //console.log(matrix);
-    //fastaSequenceOutput.update(matchStr);
-
-    var queryArr=SW.queryGapped.match(/.{1,60}/g);
-    var subjectArr=SW.subjectGapped.match(/.{1,60}/g);
-    var matchArr=matchStr.match(/.{1,60}/g);
-    var formattedMatch="\n";
-    for(var i=0;i<matchArr.length;i++){
-      formattedMatch+=queryArr[i]+"\n"+matchArr[i]+"\n"+subjectArr[i]+"\n\n";
-    }
 
     fastaSequenceOutput.update(SW.report());
     //fastaSequenceOutput.update(formattedMatch+"\n"+SW.percentIdentity+"\n"+SW.positives+"/"+SW.alignmentLength);
