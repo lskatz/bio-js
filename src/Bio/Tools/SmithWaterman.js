@@ -21,26 +21,26 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
   initialize:function($super,options){
     $super(options);
     this.options.sMatrix = options.sMatrix || [
-                [-1,-1,-1,-1,-1], // -ACGT (including gap)
-                [-1,1,-1,-1,-1],
-                [-1,-1,1,-1,-1],
-                [-1,-1,-1,1,-1],
-                [-1,-1,-1,-1,1]
+                [-3,-3,-3,-3,-3], // -ACGT (including gap)
+                [-3,2,-3,-3,-3],
+                [-3,-3,2,-3,-3],
+                [-3,-3,-3,2,-3],
+                [-3,-3,-3,-3,2]
               ];
+    this.options.gapPenalty = options.gapPenalty || -5;
+    /** @TODO have a gap extension penalty too */
     this.options.query = options.query || this.throw("ERROR: need options.query");
     this.options.subject = options.subject || this.throw("ERROR: need options.subject");
 
 
     // transform subj/query to a string of a number with a prefix gap
     // -:0, A:1, C:2, G:3, T:4
-    var query="0"+this.options.query.seq(); 
-    var subject="0"+this.options.subject.seq();
-    query=query.replace(/A/gi,1).replace(/C/gi,2).replace(/G/gi,3).replace(/T/gi,4);
-    subject=subject.replace(/A/gi,1).replace(/C/gi,2).replace(/G/gi,3).replace(/T/gi,4);
+    var query=this._ntToInt("0"+this.options.query.seq()); 
+    var subject=this._ntToInt("0"+this.options.subject.seq());
     
     // Add the object properties
-    this.queryObj=query;
-    this.subjectObj=subject;
+    this.queryObj=this.options.query;
+    this.subjectObj=this.options.subject;
     this.query=query;
     this.subject=subject;
     this.sMatrix=this.options.sMatrix;
@@ -50,6 +50,10 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
     this.matchStr="";
     this.queryGapped="";
     this.subjectGapped="";
+    this.percentIdentity=-1;
+    this.alignmentLength=-1;
+    this.positives=-1;
+    this.formattedMatch="";
   },
 
   /**
@@ -60,46 +64,78 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
     */
   matchString:function(){
     if(this.swPath.length==0){
-      this.throw("WARNING: need to call SmithWaterman.run() before this.matchString()");
-      return "";
+      return this.throw("WARNING: need to call SmithWaterman.run() before this.matchString()");
     }
-    return this.notImplemented()
-    return "";
+
+    // Stop this from running more than once if it already has
+    if(this.matchStr!=""){
+      return this.matchStr;
+    }
+
     
-    
-    // Start looking for the match string. Define it starting with
-    // the first query character.
-    var lastI=this.swPath[0][0];
-    var lastJ=this.swPath[0][1];
-    var matchString="|"; //this.query.substr(lastI,1);
+    // Start looking for the match string.
+    var matchString="|";
+    var queryString=this.swPath[0].query;
+    var subjectString=this.swPath[0].subject;
     var matchLength=this.swPath.length;
+    var numIdentical=0; // how many identity sites there are 
     for(var k=1;k<matchLength;k++){
-      var i=this.swPath[k][0];
-      var j=this.swPath[k][1];
-      console.log(this.swPath[k]+" "+this.query.substr(i,1)+" "+this.subject.substr(j,1));
-      continue;
-      
-      // If I is the same, then there is a gap on the query side
-      // If J is the same, then the subject has a gap
-      if( (j!=lastJ && i==lastI) || (j==lastJ && i!=lastI)){
+      var swPathCell=this.swPath[k];
+      var i=this.swPath[k].i;
+      var j=this.swPath[k].j;
+      var previousI=this.swPath[k-1].i;
+      var previousJ=this.swPath[k-1].j;
+
+      if(i==previousI+1 && j==previousJ+1){
+        if(this.swPath[k].subject == this.swPath[k].query){
+          matchString+="|";
+          numIdentical++;
+          //console.log(k+" "+this.swPath[k].subject+" "+this.swPath[k].query);
+        }else{
+          matchString+=" ";
+        }
+        queryString+=this.swPath[k].query;
+        subjectString+=this.swPath[k].subject;
+      } else if(i==previousI && j==previousJ+1){
         matchString+=" ";
-      }  
-      // If both I and J are different, then there is a match
-      else if(i!=lastI && j!=lastJ){
-        matchString+="|"
+        queryString+="-";
+        subjectString+=this.swPath[k].subject;
+      } else if(i==previousI+1 && j==previousJ){
+        matchString+=" ";
+        queryString+=this.swPath[k].query;
+        subjectString+="-";
       } else {
-        console.log("Internal error");
-        return false;
+        return this.throw("Internal error!");
       }
       
-      // Update i, j
-      lastI=i;
-      lastJ=j;
     }
     
     this.matchStr=matchString;
-    console.log("\n"+this.query+"\n"+matchString+"\n"+this.subject+"\n");
+    this.queryGapped=queryString;
+    this.subjectGapped=subjectString;
+    this.percentIdentity=100*numIdentical/this.swPath.length
+    this.positives=numIdentical;
     return matchString;
+  },
+
+  report:function(){
+    // Don't recalculate this if it's already set
+    if(this.formattedMatch != ""){
+      return this.formattedMatch;
+    }
+
+    var matchArr=this.matchString().match(/.{1,60}/g);
+    var queryArr=this.queryGapped.match(/.{1,60}/g);
+    var subjectArr=this.subjectGapped.match(/.{1,60}/g);
+    var formattedMatch="\n";
+    
+    var formattedMatch="";
+    for(var i=0;i<matchArr.length;i++){
+      formattedMatch+=queryArr[i]+"\n"+matchArr[i]+"\n"+subjectArr[i]+"\n\n";
+    }
+    
+    this.formattedMatch=formattedMatch;
+    return this.formattedMatch;
   },
 
   /**
@@ -124,24 +160,34 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
     
     // Calculate scores in the matrix according to gaps and matches.
     // The first col/row is zero, so no point in starting at zeroth pos.
-    var maxInt=0;  // this will come out to be the largest integer in the matrix
-    var maxI=0; var maxJ;
+    var largestInteger=0;  // this will come out to be the largest integer in the matrix
+    var maxI=0; var maxJ=0;
     for(var i=1;i<query.length;i++){
+      // Get the integer representation of the query nt in both this
+      // position and the previous position.
       var queryInt=parseInt(query.substr(i,1));
       var lastQueryInt=parseInt(query.substr(i-1,1));
       for(var j=1;j<subject.length;j++){
+        // Get the integer representation of the subject nt in both this
+        // position and the previous position.
         var subjectInt=parseInt(subject.substr(j,1));
         var lastSubjectInt=parseInt(subject.substr(j-1,1));
-        var north=matrix[i-1][j]+ this.sMatrix[lastQueryInt][subjectInt];
-        var west=matrix[i][j-1] + this.sMatrix[queryInt][lastSubjectInt];
+        // N score is the score from above + match score of the previous
+        // query nt with the current subject nt, with a gap penalty
+        var north=matrix[i-1][j]+ this.sMatrix[lastQueryInt][subjectInt] + this.options.gapPenalty;
+        // W score is the score from the left + match score of the previous
+        // subject nt with the current query nt, with a gap penalty
+        var west=matrix[i][j-1] + this.sMatrix[queryInt][lastSubjectInt] + this.options.gapPenalty;
+        // NW score is the score from the top-left + match score of 
+        // the current query/subject nt
         var nw=matrix[i-1][j-1] + this.sMatrix[queryInt][subjectInt];
         
         // Find which value is largest, for this cell of the matrix
         var localMax=Math.max(0,north,west,nw);
-        
+
         // If this is the largest value, mark it.
-        if(localMax > maxInt){
-          maxInt=localMax
+        if(localMax > largestInteger){
+          largestInteger=localMax
           maxI=i
           maxJ=j
         }
@@ -155,9 +201,9 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
     // Capture the path, total score, and the match string.
     i=maxI; 
     j=maxJ;
-    var localScore=maxInt;
+    var localScore=largestInteger;
     var totalScore=localScore;
-    var swPath=[[i,j]]; // will be an array of coordinates
+    var swPath=[]; // will be an array of coordinates + other info
     //var matchString=query.substr(i,1); // first in the match string is a match
     while(localScore > 0){
       // Figure out the path to the next highest score.
@@ -174,12 +220,13 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
       localScore=Math.max.apply(Math, keys);
       totalScore+=localScore;
       
+      //swPath.push([i,j,localScore]);
+      swPath.push({i:i, j:j, score:localScore, query:this._intToNt(this.query.substr(i,1)), subject:this._intToNt(this.subject.substr(j,1))});
+
       // Keep track of the path
       var nextCell=scores[localScore];
-      swPath.push(nextCell);
       i=nextCell[0];
       j=nextCell[1];
-      
     }
     
     // Reverse the match string and path to put it in a 'left to right' order
@@ -187,10 +234,18 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
     
     // update the object's properties
     this.swPath=swPath;
+    this.alignmentLength=swPath.length;
     this.score=totalScore;
     this.matrix=matrix;
     
     return [totalScore,swPath];
+  },
+  _intToNt:function(number){
+    return number.replace(/0/g,"N").replace(/1/g,"A").replace(/2/g,"C").replace(/3/g,"G").replace(/4/g,"T");
+  },
+  _ntToInt:function(nt){
+    var integer=nt.replace(/[^ACGT]/gi,"0").replace(/A/gi,"1").replace(/C/gi,"2").replace(/G/gi,"3").replace(/T/gi,"4");
+    return integer;
   }
 
 });
