@@ -58,7 +58,7 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
 
   /**
     * @function matchString
-    * @desc Not yet implemented. Returns the string representation of the match
+    * @desc Figures out the string representation of the match. Also sets certain properties of this object such as percentIdentity and positives.
     * @returns {string} The string representation of the match
     * @memberof Bio.Tools.SmithWaterman
     */
@@ -118,6 +118,12 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
     return matchString;
   },
 
+  /**
+    * @function report
+    * @desc Formats the match string and other information in a useful report. Internally calls {@link Bio.Tools.SmithWaterman.matchString}.
+    * @returns {string} The the report
+    * @memberof Bio.Tools.SmithWaterman
+    */
   report:function(){
     // Don't recalculate this if it's already set
     if(this.formattedMatch != ""){
@@ -142,7 +148,7 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
     * @method run
     * @desc Runs Smith-Waterman
     * @returns {Number} The score.
-    * @see {@link matchString} for other object properties you can access.
+    * @see {@link Bio.Tools.SmithWaterman.matchString} for other object properties you can access.
     * @memberof Bio.Tools.SmithWaterman
     */
   run:function(){
