@@ -18,12 +18,13 @@ Bio.SeqIO.Fasta = Class.create(Bio.SeqIO,{
     this.seq=[];
     this.sequenceString="";
 
-    if("el" in options){
-      this.sequenceString=$(el).innerHTML;
-    } else if("string" in options){
+    if(typeof options["el"] !== 'undefined'){
+      this.sequenceString=$(options.el).innerHTML.unescapeHTML();
+    } else if(typeof options["string"] !== 'undefined'){
       this.sequenceString=options.string;
     } 
     if(this.sequenceString) this._parseFile(this.sequenceString);
+
 
   },
   /**
@@ -72,6 +73,8 @@ Bio.SeqIO.Fasta = Class.create(Bio.SeqIO,{
    * @private
    */
   _parseFile:function(str){
+    // remove the first >
+    str=str.replace(/^>/,'');
     var seqArray=[];
     //var seqEntry=str.split(/>/);
     var seqEntry=str.split(this.nl+">");

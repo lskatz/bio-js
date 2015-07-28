@@ -140,6 +140,7 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
     var queryArr=this.queryGapped.match(/.{1,60}/g);
     var subjectArr=this.subjectGapped.match(/.{1,60}/g);
 
+
     for(var i=0;i<matchArr.length;i++){
       formattedMatch+=queryArr[i].match(/.{1,10}/g).join(" ")+"\n"+matchArr[i].match(/.{1,10}/g).join(" ")+"\n"+subjectArr[i].match(/.{1,10}/g).join(" ")+"\n\n";
     }
@@ -156,16 +157,48 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
     * @memberof Bio.Tools.SmithWaterman
     */
   run:function(){
+    if(this.options.heuristics){
+      this._smartSW();
+    } else {
+      this._SW();
+    }
+    
+    /*
+    // Double check that certain properties have been set by one of these smith-waterman functions
+    $A('swPath','alignmentLength','score','matrix').each(function(el){
+      if(typeof this[el] == 'undefined'){
+        this.throw("ERROR: "+el+" is not defined for this object");
+      }
+    }).bind(this);
+    */
+  },
+
+  _smartSW:function(){
+    
+    // update the object's properties
+    this.swPath=swPath;
+    this.alignmentLength=swPath.length;
+    this.score=totalScore;
+    this.matrix=matrix;
+  },
+
+  /**
+    * @method _SW
+    * @desc Runs vanilla Smith-Waterman. Sets the following properties: swPath; alignmentLength; score; matrix
+    * @returns {Number} The score.
+    * @see {@link Bio.Tools.SmithWaterman.matchString} for other object properties you can access.
+    * @memberof Bio.Tools.SmithWaterman
+    */
+  _SW:function(){
     query=this.query
     subject=this.subject
-    
+
     // initialize the smith-waterman matrix to 0
     var matrix=[];
+    var lastIndex=subject.length-1;
     for(var i=0;i<query.length;i++){
-      matrix[i]=[0];
-      //for(var j=0;j<subject.length;j++){
-      //  matrix[i][j]=0;
-      //}
+      // http://stackoverflow.com/questions/1295584/most-efficient-way-to-create-a-zero-filled-javascript-array
+      matrix[i]=new Array(subject.length).join('0').split('').map(parseFloat);
     }
     
     // Calculate scores in the matrix according to gaps and matches.

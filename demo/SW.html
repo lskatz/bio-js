@@ -9,19 +9,6 @@
   <script type='text/javascript'>
   <!--
   Event.observe(window,"load",function(){
-    // copy the input from the first textarea to the rest
-    // TODO fix the fasta out... why does it do that?
-    var input=new Bio.SeqIO.Fasta('input',{html:false,mode:'r'});
-    $$(".input").each(function(el){
-      if(el.identify()=='input') return;
-      output=new Bio.SeqIO.Fasta(el,{
-        html:false,
-        mode:'w'
-      });
-      while(seq=input.next_seq()){
-        output.write_seq(seq);
-      }
-    });
 
     testSW();
   });
@@ -30,13 +17,14 @@
     fastaSequenceInput=$('testToolsSW').select('.input')[0];
     fastaSequenceOutput=$('testToolsSW').select('.output')[0];
 
-    seqin=new Bio.SeqIO.Fasta(fastaSequenceInput,{
+    seqin=new Bio.SeqIO.Fasta({
+      el:fastaSequenceInput,
       html:false
     });
     var query=seqin.next_seq();
     var subject=seqin.next_seq();
     var SW=new Bio.Tools.SmithWaterman({query:query,subject:subject});
-    [score,matrix]=SW.run();
+    SW.run();
 
     fastaSequenceOutput.update(SW.report());
     //fastaSequenceOutput.update(formattedMatch+"\n"+SW.percentIdentity+"\n"+SW.positives+"/"+SW.alignmentLength);
