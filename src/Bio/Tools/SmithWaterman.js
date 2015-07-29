@@ -31,6 +31,7 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
     /** @TODO have a gap extension penalty too */
     this.options.query = options.query || this.throw("ERROR: need options.query");
     this.options.subject = options.subject || this.throw("ERROR: need options.subject");
+    this.options.heuristics = options.heuristics || false;
 
 
     // transform subj/query to a string of a number with a prefix gap
@@ -157,7 +158,7 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
     * @memberof Bio.Tools.SmithWaterman
     */
   run:function(){
-    if(this.options.heuristics){
+    if(this.options.heuristics === true){
       this._smartSW();
     } else {
       this._SW();
@@ -173,8 +174,48 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
     */
   },
 
+  /**
+    * @method _smartSW
+    * @desc Runs Smith-Waterman with heuristics. Sets the properties mentioned in {@link Bio.Tools.SmithWaterman._SW}. Call this method using {@link Bio.Tools.SmithWaterman._SW} with heuristics:true.
+    * @returns {Number} The score.
+    * @see {@link Bio.Tools.SmithWaterman.matchString} for other object properties you can access.
+    * @memberof Bio.Tools.SmithWaterman
+    */
   _smartSW:function(){
     
+    // Declare 13-mers in the query and find them in the subject.
+    var wordSize=this.options.wordSize || 13;
+    var step=this.options.step || 13;
+    var subjectSubseq=[];
+    var querySubseq=[];
+    for(var i=0;i<this.query.length;i+=step){
+      var word=this.query.substr(i,wordSize);
+      var index=this.subject.indexOf(word);
+      if(index===-1) continue;
+
+      // Subject object
+      var start=index-10;
+      if(start<1) start=1;
+      var end=index+wordSize+10;
+      if(end > this.subject.length) end=this.subject.length;
+      var subjObj=new Bio.Seq.Primaryseq({id:this.subjectObj.id+"_"+index, seq:this.subjectObj.subseq(start,end)});
+      subjectSubseq.push(subjObj);
+
+      // Query object
+      start=i-10;
+      if(start<1) start=1;
+      var end=i+wordSize+10;
+      if(end > this.query.length) end=this.query.length;
+      
+      var queryObj=new Bio.Seq.Primaryseq({id:this.queryObj.id+"_"+i, seq:this.queryObj.subseq(start,end)});
+      querySubseq.push(queryObj);
+    }
+
+
+
+    return;
+    
+    console.log("smart SW");
     // update the object's properties
     this.swPath=swPath;
     this.alignmentLength=swPath.length;

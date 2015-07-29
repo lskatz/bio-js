@@ -39,6 +39,16 @@ Bio.Seq.Primaryseq = Class.create(Bio.Seq,{
     return this.options.seq;
   },
   /**
+   * @func subseq
+   * @desc Subsequence of the sequence
+   * @returns {sring} Subseq The subsequence
+   * @param {int} Start Start position, 1-based
+   * @param {int} End End position, 1-based
+   */
+  subseq:function(start,end){
+    return this.seq().substr(start-1,end-start+1);
+  },
+  /**
    * Return or update the id
    * @param id If set, then updates the id
    */

@@ -10,8 +10,25 @@
   <!--
   Event.observe(window,"load",function(){
 
+    //testSmartSW();
     testSW();
   });
+
+  function testSmartSW(){
+    fastaSequenceInput=$('testToolsSW').select('.input')[0];
+    fastaSequenceOutput=$('testToolsSW').select('.output')[0];
+
+    seqin=new Bio.SeqIO.Fasta({
+      el:fastaSequenceInput,
+      html:false
+    });
+    var query=seqin.next_seq();
+    var subject=seqin.next_seq();
+    var SW=new Bio.Tools.SmithWaterman({query:query,subject:subject,
+      heuristics:true
+    });
+    SW.run();
+  }
 
   function testSW(){
     fastaSequenceInput=$('testToolsSW').select('.input')[0];
@@ -27,7 +44,6 @@
     SW.run();
 
     fastaSequenceOutput.update(SW.report());
-    //fastaSequenceOutput.update(formattedMatch+"\n"+SW.percentIdentity+"\n"+SW.positives+"/"+SW.alignmentLength);
   }
   //-->
   </script>
