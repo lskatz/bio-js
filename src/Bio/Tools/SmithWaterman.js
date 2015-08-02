@@ -65,7 +65,8 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
     */
   matchString:function(){
     if(this.swPath.length==0){
-      return this.throw("WARNING: need to call SmithWaterman.run() before this.matchString()");
+      console.log(this.throw("WARNING: need to call SmithWaterman.run() before this.matchString()"));
+      return false;
     }
 
     // Stop this from running more than once if it already has
@@ -142,6 +143,7 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
     var subjectArr=this.subjectGapped.match(/.{1,60}/g);
 
 
+
     for(var i=0;i<matchArr.length;i++){
       formattedMatch+=queryArr[i].match(/.{1,10}/g).join(" ")+"\n"+matchArr[i].match(/.{1,10}/g).join(" ")+"\n"+subjectArr[i].match(/.{1,10}/g).join(" ")+"\n\n";
     }
@@ -158,20 +160,32 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
     * @memberof Bio.Tools.SmithWaterman
     */
   run:function(){
-    if(this.options.heuristics === true){
-      this._smartSW();
-    } else {
-      this._SW();
+
+    // default return values
+    var matchProperties={
+      swPath:undefined,
+      alignmentLength:undefined,
+      score:undefined,
+      matrix:undefined,
+      totalScore:undefined
     }
-    
-    /*
-    // Double check that certain properties have been set by one of these smith-waterman functions
-    $A('swPath','alignmentLength','score','matrix').each(function(el){
-      if(typeof this[el] == 'undefined'){
-        this.throw("ERROR: "+el+" is not defined for this object");
-      }
-    }).bind(this);
-    */
+
+    // Choose the algorithm and get is match properties
+    var thisMatchProperties;
+    if(this.options.heuristics === true){
+      thisMatchProperties=this._smartSW({query:this.query,subject:this.subject});
+    } else {
+      thisMatchProperties=this._SW({query:this.query,subject:this.subject});
+    }
+
+    // Fill up any values that were defined in the matching algorithm
+    $H(matchProperties).each(function(pair){
+      matchProperties[pair.key]=pair.value;
+      this[pair.key]=thisMatchProperties[pair.key] || matchProperties[pair.key];
+    }.bind(this));
+
+
+    return matchProperties;
   },
 
   /**
@@ -181,46 +195,113 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
     * @see {@link Bio.Tools.SmithWaterman.matchString} for other object properties you can access.
     * @memberof Bio.Tools.SmithWaterman
     */
-  _smartSW:function(){
+  _smartSW:function(options){
+    query=options.query || this.query;
+    subject=options.subject || this.subject;
     
-    // Declare 13-mers in the query and find them in the subject.
-    var wordSize=this.options.wordSize || 13;
-    var step=this.options.step || 13;
-    var subjectSubseq=[];
-    var querySubseq=[];
+    // Declare 11-mers in the query and find them in the subject.
+    var wordSize=this.options.wordSize || 11;
+    var step=this.options.step || 11;
+    var kmerMatch=[]; // kmerMatch[queryIndex]=subjectIndex;
+    var queryIndex=[];
+    var subjectIndex=[];
     for(var i=0;i<this.query.length;i+=step){
       var word=this.query.substr(i,wordSize);
       var index=this.subject.indexOf(word);
       if(index===-1) continue;
 
-      // Subject object
-      var start=index-10;
-      if(start<1) start=1;
-      var end=index+wordSize+10;
-      if(end > this.subject.length) end=this.subject.length;
-      var subjObj=new Bio.Seq.Primaryseq({id:this.subjectObj.id+"_"+index, seq:this.subjectObj.subseq(start,end)});
-      subjectSubseq.push(subjObj);
-
-      // Query object
-      start=i-10;
-      if(start<1) start=1;
-      var end=i+wordSize+10;
-      if(end > this.query.length) end=this.query.length;
-      
-      var queryObj=new Bio.Seq.Primaryseq({id:this.queryObj.id+"_"+i, seq:this.queryObj.subseq(start,end)});
-      querySubseq.push(queryObj);
+      kmerMatch[i]=index;
+      queryIndex.push(i);
+      subjectIndex.push(index);
     }
 
+    // Create ranges of query/subject for alignment
+    var allowedDistanceBetweenKmers=5000;
+    var queryRange={};
+    var subjectRange={};
+    queryRange[queryIndex[0]]=1;
+    subjectRange[subjectIndex[0]]=1;
+    for(var i=1; i<kmerMatch.length; i++){
+      // Don't include this next kmer if it is too far away
+      if(queryIndex[i] > queryIndex[i-1] + allowedDistanceBetweenKmers) continue;
 
+      // Make a range for the query
+      // include all integers from queryIndex[i-1] to this integer
+      $A($R(queryIndex[i-1],queryIndex[i])).each(function(el){
+        if(queryRange[el]==1) return;
+        queryRange[el]=1;
+      });
 
-    return;
+      // Make a range for the subject too
+      $A($R(subjectIndex[i-1],subjectIndex[i])).each(function(el){
+        if(subjectRange[el]==1) return;
+        subjectRange[el]=1;
+      });
+    }
     
-    console.log("smart SW");
-    // update the object's properties
-    this.swPath=swPath;
-    this.alignmentLength=swPath.length;
-    this.score=totalScore;
-    this.matrix=matrix;
+    // Find the longest contiguous range for the query and subject
+
+    // Range for the query
+    var querySeq;
+    var queryLength=0;
+    // Get an Interator of keys
+    var queryRangeInt=$H(queryRange).keys();
+    // Get a sorted array of keys. These element values are strings.
+    // TODO figure out how to change it to Integers
+    queryRangeInt=queryRangeInt.sortBy(function(i){return parseInt(i)});
+    var queryStart=queryRangeInt[0];
+    var queryEnd=queryRangeInt[0];
+    // Turn all elements into integers
+    for(var i=0;i<queryRangeInt.length;i++){ queryRangeInt[i]=parseInt(queryRangeInt[i]); }
+    // Find subsequential integers
+    var queryRangeArr=[];
+    for(var i=1;i<queryRangeInt.length;i++){
+      if(queryRangeInt[i] == queryRangeInt[i-1] + 1){
+        queryEnd++;
+      } else {
+        queryRangeArr.push({start:queryStart, end:queryEnd});
+        queryStart=queryRangeInt[i];
+        queryEnd=queryRangeInt[i];
+      }
+    }
+    queryRangeArr.push({start:queryStart, end:queryEnd});
+
+    // Range for the subject
+    var subjectSeq;
+    var subjectLength=0;
+    // Get an Interator of keys
+    var subjectRangeInt=$H(subjectRange).keys();
+    // Get a sorted array of keys. These element values are strings.
+    // TODO figure out how to change it to Integers
+    subjectRangeInt=subjectRangeInt.sortBy(function(i){return parseInt(i)});
+    var subjectStart=subjectRangeInt[0];
+    var subjectEnd=subjectRangeInt[0];
+    // Turn all elements into integers
+    for(var i=0;i<subjectRangeInt.length;i++){ subjectRangeInt[i]=parseInt(subjectRangeInt[i]); }
+    // Find subsequential integers
+    var subjectRangeArr=[];
+    for(var i=1;i<subjectRangeInt.length;i++){
+      if(subjectRangeInt[i] == subjectRangeInt[i-1] + 1){
+        subjectEnd++;
+      } else {
+        subjectRangeArr.push({start:subjectStart, end:subjectEnd});
+        subjectStart=subjectRangeInt[i];
+        subjectEnd=subjectRangeInt[i];
+      }
+    }
+    subjectRangeArr.push({start:subjectStart, end:subjectEnd});
+
+    // Get subject/query objects
+    // TODO choose longest subject/query range
+    // TODO get some wiggle room instead of exactly where the kmers matched
+    var subQuery=query.substr(queryRangeArr[0]["start"]-1,queryRangeArr[0]["end"]-1);
+    var subSubject=subject.substr(subjectRangeArr[0]["start"]-1,subjectRangeArr[0]["end"]-1);
+
+    var returnObj=this._SW({query:subQuery,subject:subSubject});
+    
+    console.log(returnObj);
+
+    return returnObj;
   },
 
   /**
@@ -230,9 +311,9 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
     * @see {@link Bio.Tools.SmithWaterman.matchString} for other object properties you can access.
     * @memberof Bio.Tools.SmithWaterman
     */
-  _SW:function(){
-    query=this.query
-    subject=this.subject
+  _SW:function(options){
+    query=options.query || this.query;
+    subject=options.subject || this.subject;
 
     // initialize the smith-waterman matrix to 0
     var matrix=[];
@@ -305,7 +386,7 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
       totalScore+=localScore;
       
       //swPath.push([i,j,localScore]);
-      swPath.push({i:i, j:j, score:localScore, query:this._intToNt(this.query.substr(i,1)), subject:this._intToNt(this.subject.substr(j,1))});
+      swPath.push({i:i, j:j, score:localScore, query:this._intToNt(query.substr(i,1)), subject:this._intToNt(subject.substr(j,1))});
 
       // Keep track of the path
       var nextCell=scores[localScore];
@@ -316,13 +397,15 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
     // Reverse the match string and path to put it in a 'left to right' order
     swPath=swPath.reverse();
     
-    // update the object's properties
-    this.swPath=swPath;
-    this.alignmentLength=swPath.length;
-    this.score=totalScore;
-    this.matrix=matrix;
-
-    return [totalScore,swPath];
+    var returnObj= {
+      swPath:swPath,
+      alignmentLength:swPath.length,
+      score:totalScore,
+      matrix:matrix,
+      totalScore:totalScore
+    };
+    
+    return returnObj;
   },
   _intToNt:function(number){
     return number.replace(/0/g,"N").replace(/1/g,"A").replace(/2/g,"C").replace(/3/g,"G").replace(/4/g,"T");

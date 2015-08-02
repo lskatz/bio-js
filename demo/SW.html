@@ -10,8 +10,8 @@
   <!--
   Event.observe(window,"load",function(){
 
-    //testSmartSW();
-    testSW();
+    testSmartSW();
+    //testSW();
   });
 
   function testSmartSW(){
@@ -28,6 +28,8 @@
       heuristics:true
     });
     SW.run();
+
+    fastaSequenceOutput.update(SW.report());
   }
 
   function testSW(){
@@ -50,8 +52,9 @@
   <style type='text/css'>
     textarea.input,textarea.output{
       height:30em;
-      width:40em;
+      width:50em;
       font-family:monospace;
+      font-size:11px;
     }
   </style>
 </head>

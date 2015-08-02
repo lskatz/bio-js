@@ -1,16 +1,10 @@
-/**
- * @lends Bio.Root
- */
 Bio.Root = Class.create({
   /**
    * An abstract base class. All BioJS object inherit from it.
    * @author Lee Katz <lskatz@gmail.com>
-   * @class
+   * @constructs Bio.Root
    * @param {Array} options An associative array with options
    * @param {*} options.something Child variable function, to be determined by the child
-   * @constructs
-   * @abstract
-   * @name Bio.Root
    */
   initialize: function(options) {
     this.e = Prototype.emptyFunction;

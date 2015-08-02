@@ -18,6 +18,7 @@ if (Object.isUndefined(Bio)) {
    * @version 0.2
    * @author Lee Katz <lskatz@gmail.com>
    * @class The BioJS object
+   * @namespace
    */
   var Bio = { }; 
 
