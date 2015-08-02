@@ -299,8 +299,6 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
 
     var returnObj=this._SW({query:subQuery,subject:subSubject});
     
-    console.log(returnObj);
-
     return returnObj;
   },
 
