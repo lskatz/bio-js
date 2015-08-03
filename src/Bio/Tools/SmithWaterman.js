@@ -139,7 +139,7 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
 
     var formattedMatch="";
     //formattedMatch+=this.queryObj.id()+" against "+this.subjectObj.id()+"\n";
-    formattedMatch+="Identities: "+this.positives+"/"+this.alignmentLength+"("+Math.round(this.percentIdentity * 100)/100+"%)\n\n";
+    formattedMatch+="Identities: "+this.positives+"/"+this.alignmentLength+"("+Math.round(this.percentIdentity * 100)/100+"%) Score: "+this.score+"\n\n";
 
     var matchArr=this.matchString().match(/.{1,40}/g);
     var queryArr=this.queryGapped.match(/.{1,40}/g);
@@ -447,7 +447,8 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
     var returnObj= {
       swPath:swPath,
       alignmentLength:swPath.length,
-      score:totalScore,
+      //score:totalScore,
+      score:largestInteger,
       matrix:matrix,
       totalScore:totalScore
     };
