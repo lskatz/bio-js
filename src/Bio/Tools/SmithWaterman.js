@@ -28,7 +28,7 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
                 [-3,-3,-3,-3,2]
               ];
     this.options.gapPenalty = options.gapPenalty || -5;
-    /** @TODO have a gap extension penalty too */
+    /** @TODO have a gap extension penalty in addition to gap existence */
     this.options.query = options.query || this.throw("ERROR: need options.query");
     this.options.subject = options.subject || this.throw("ERROR: need options.subject");
     this.options.heuristics = options.heuristics || false;
@@ -134,18 +134,46 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
     }
     this.matchString(); // Run this to set some variables
 
+    var queryId=this.queryObj.id().substr(0,10);
+    var subjectId=this.subjectObj.id().substr(0,10);
+
     var formattedMatch="";
-    formattedMatch+=this.queryObj.id()+" against "+this.subjectObj.id()+"\n";
-    formattedMatch+="Identities: "+this.positives+"/"+this.alignmentLength+"("+Math.round(this.percentIdentity * 100)/100+"%)\n";
+    //formattedMatch+=this.queryObj.id()+" against "+this.subjectObj.id()+"\n";
+    formattedMatch+="Identities: "+this.positives+"/"+this.alignmentLength+"("+Math.round(this.percentIdentity * 100)/100+"%)\n\n";
 
-    var matchArr=this.matchString().match(/.{1,60}/g);
-    var queryArr=this.queryGapped.match(/.{1,60}/g);
-    var subjectArr=this.subjectGapped.match(/.{1,60}/g);
+    var matchArr=this.matchString().match(/.{1,40}/g);
+    var queryArr=this.queryGapped.match(/.{1,40}/g);
+    var subjectArr=this.subjectGapped.match(/.{1,40}/g);
 
+    //matrix[i]=new Array(subject.length).join('0').split('').map(parseFloat);
+    var idPaddingLength=Math.max(queryId.length,subjectId.length);
+    var idPadding=new Array(idPaddingLength).join(" ")
+    var coordinatePaddingLength=5; // TODO make this more dynamic 
+    var coordinatePadding=new Array(coordinatePaddingLength).join(" ");
+    //matchArr[0]=idPadding+coordinatePadding+" "+matchArr[0];
+    //queryArr[0]=queryId+" "+this.queryStart.toString()+" "+queryArr[0];
+    //subjectArr[0]=subjectId+" "+this.subjectStart.toString()+" "+subjectArr[0];
 
-
+    var queryStart=String(coordinatePadding + this.queryStart.toString()).slice(-1*coordinatePaddingLength);
+    var subjectStart=String(coordinatePadding + this.subjectStart.toString()).slice(-1*coordinatePaddingLength);
     for(var i=0;i<matchArr.length;i++){
-      formattedMatch+=queryArr[i].match(/.{1,10}/g).join(" ")+"\n"+matchArr[i].match(/.{1,10}/g).join(" ")+"\n"+subjectArr[i].match(/.{1,10}/g).join(" ")+"\n\n";
+      formattedMatch+=
+                     queryId+" "+queryStart+" "+queryArr[i].match(/.{1,10}/g).join(" ")+"\n"
+                    +idPadding+coordinatePadding+"    "+matchArr[i].match(/.{1,10}/g).join(" ")+"\n"
+                    +subjectId+" "+subjectStart+" "+subjectArr[i].match(/.{1,10}/g).join(" ")+"\n\n";
+
+      // Update queryStart/subjectStart.
+      // Take into account the number of gaps, the strand
+      var queryGapCount=(queryArr[i].match(/\-/g)||[]).length;
+      var subjectGapCount=(subjectArr[i].match(/\-/g)||[]).length;
+      queryStart=String(coordinatePadding + String(parseInt(queryStart)+queryArr[i].length-queryGapCount)).slice(-1*coordinatePaddingLength);
+      if(this.strand==1){
+        subjectStart=String(coordinatePadding + String(parseInt(subjectStart)+subjectArr[i].length-subjectGapCount)).slice(-1*coordinatePaddingLength);
+      }else if(this.strand==-1){
+        subjectStart=String(coordinatePadding + String(parseInt(subjectStart)-subjectArr[i].length-subjectGapCount)).slice(-1*coordinatePaddingLength);
+      } else {
+        this.throw("ERROR: the strand was never identified");
+      }
     }
     
     this.formattedMatch=formattedMatch;
@@ -167,15 +195,28 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
       alignmentLength:undefined,
       score:undefined,
       matrix:undefined,
-      totalScore:undefined
+      totalScore:undefined,
+      queryStart:1,
+      subjectStart:1,
+      strand:undefined
     }
 
     // Choose the algorithm and get is match properties
-    var thisMatchProperties;
+    var thisMatchPropertiesF,thisMatchPropertiesR;
     if(this.options.heuristics === true){
-      thisMatchProperties=this._smartSW({query:this.query,subject:this.subject});
+      thisMatchPropertiesF=this._smartSW({query:this.query,subject:this.subject});
+      thisMatchPropertiesR=this._smartSW({query:this.query,subject:this.subject.split('').reverse().join('')});
     } else {
-      thisMatchProperties=this._SW({query:this.query,subject:this.subject});
+      thisMatchPropertiesF=this._SW({query:this.query,subject:this.subject});
+      thisMatchPropertiesR=this._SW({query:this.query,subject:this.subject.split('').reverse().join('')});
+    }
+
+    // Did the reverse or forward strand have a better match?
+    var thisMatchProperties=thisMatchPropertiesF;
+    thisMatchProperties.strand=1;
+    if(thisMatchPropertiesF.score < thisMatchPropertiesR.score){
+      thisMatchProperties=thisMatchPropertiesR;
+      thisMatchProperties.strand=-1;
     }
 
     // Fill up any values that were defined in the matching algorithm
@@ -294,10 +335,18 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
     // Get subject/query objects
     // TODO choose longest subject/query range
     // TODO get some wiggle room instead of exactly where the kmers matched
-    var subQuery=query.substr(queryRangeArr[0]["start"]-1,queryRangeArr[0]["end"]-1);
-    var subSubject=subject.substr(subjectRangeArr[0]["start"]-1,subjectRangeArr[0]["end"]-1);
+    var querySeqStart=queryRangeArr[0]["start"];
+    var querySeqEnd=queryRangeArr[0]["end"];
+    var subjectSeqStart=subjectRangeArr[0]["start"];
+    var subjectSeqEnd=subjectRangeArr[0]["end"];
+    var subQuery=query.substr(querySeqStart-1,querySeqEnd-1);
+    var subSubject=subject.substr(subjectSeqStart-1,subjectSeqEnd-1);
 
     var returnObj=this._SW({query:subQuery,subject:subSubject});
+    returnObj["queryStart"]=querySeqStart;
+    returnObj["queryEnd"]=querySeqEnd;
+    returnObj["subjectStart"]=subjectSeqStart;
+    returnObj["subjectEnd"]=subjectSeqEnd;
     
     return returnObj;
   },
@@ -310,8 +359,8 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
     * @memberof Bio.Tools.SmithWaterman
     */
   _SW:function(options){
-    query=options.query || this.query;
-    subject=options.subject || this.subject;
+    var query=options.query || this.query;
+    var subject=options.subject || this.subject;
 
     // initialize the smith-waterman matrix to 0
     var matrix=[];
