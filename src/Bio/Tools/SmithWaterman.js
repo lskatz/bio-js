@@ -205,10 +205,10 @@ Bio.Tools.SmithWaterman=Class.create(Bio.Tools,{
     var thisMatchPropertiesF,thisMatchPropertiesR;
     if(this.options.heuristics === true){
       thisMatchPropertiesF=this._smartSW({query:this.query,subject:this.subject});
-      thisMatchPropertiesR=this._smartSW({query:this.query,subject:this.subject.split('').reverse().join('')});
+      thisMatchPropertiesR=this._smartSW({query:this.query,subject:this.subject.revcom()});
     } else {
       thisMatchPropertiesF=this._SW({query:this.query,subject:this.subject});
-      thisMatchPropertiesR=this._SW({query:this.query,subject:this.subject.split('').reverse().join('')});
+      thisMatchPropertiesR=this._SW({query:this.query,subject:this.subject.revcom()});
     }
 
     // Did the reverse or forward strand have a better match?
