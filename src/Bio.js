@@ -88,3 +88,21 @@ if (Object.isUndefined(Bio)) {
 else {
   throw("Warning: BioJS was has already been loaded, or the Bio variable has already been defined as something else.");
 }
+
+// Reverse complement a DNA string
+String.prototype.revcom=function(){
+  var revcom=this.split('').reverse().join('').replace(/[ATCGatcg0-4]/g,function(nt){
+    return{
+      'A':'T', 'a':'t',
+      'C':'G', 'c':'g',
+      'G':'C', 'g':'c',
+      'T':'A', 't':'a',
+      // also compatibility for 0:gap, 1:A, 2:C, 3:G, 4:T
+      '1':'4', '4':'1',
+      '2':'3', '3':'2',
+      '0':'0'
+    }[nt];
+  });
+  return revcom;
+}
+
